@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -18,11 +20,18 @@ func home(w http.ResponseWriter, r *http.Request) {
 		// return to exit from func and do not continue next line
 		return
 	}
-	w.Write([]byte("Hello from 2 chapter"))
+	w.Write([]byte("Hello from 3 chapter"))
 }
 
 func showMemo(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Show Memo"))
+	// get id from URL, and check
+	idString := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+	fmt.Fprintf(w, "id is:%d", id)
 }
 
 func createMemo(w http.ResponseWriter, r *http.Request) {

@@ -9,3 +9,8 @@
 #### http.DetectContentType()
 - определения типа контента, если не сможет то поставит Content-Type: application/octet-stream
 - **не может отличить json от текста**, поэтому надо самому поставить в заголовках типа : `w.Header().Set("Content-Type", "application/json")`
+
+#### Curl commands
+```bash
+curl -i -X GET http://127.0.0.1:8080/memo/create
+```

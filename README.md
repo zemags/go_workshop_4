@@ -21,3 +21,5 @@ curl -i -X GET http://127.0.0.1:8080/memo/create
 - ui - шаблоны, статика, изображения и тд
 
 #### Название шаблонов навазние.роль.tmpl
+</br>
+ - http.FileServer - Обработчик статических файлов (`fileServer := http.FileServer(http.Dir("./ui/static"))`)

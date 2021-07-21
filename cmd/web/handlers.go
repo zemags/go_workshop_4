@@ -8,17 +8,13 @@ import (
 	"strconv"
 )
 
-const (
-	MethodNotAllowed = 405
-)
-
 func home(w http.ResponseWriter, r *http.Request) {
-	// ResponseWriter for combainig http answer and return to user
-	// Request pointer for structure thats contain info about current request
+	// ResponseWriter - for combainig http answer and return to user
+	// Request - pointer for structure thats contain info about current request
 	if r.URL.Path != "/" {
 		// return 404 if doesnt match to / or other contollers
 		http.NotFound(w, r)
-		// return to exit from func and do not continue next line
+		// 'return' to exit from func and do not continue next lines
 		return
 	}
 
@@ -43,7 +39,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func showMemo(w http.ResponseWriter, r *http.Request) {
-	// get id from URL, and check
+	// get id from URL (../memo?id=1), and check
 	idString := r.URL.Query().Get("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil || id < 1 {
@@ -54,12 +50,12 @@ func showMemo(w http.ResponseWriter, r *http.Request) {
 }
 
 func createMemo(w http.ResponseWriter, r *http.Request) {
-	// POST request
+	// POST request need
 	if r.Method != http.MethodPost {
-		// add to header 'Allow: POST' user will know
+		// add to header 'Allow: POST' and user will know
 		w.Header().Set("Allow", http.MethodPost)
 
-		http.Error(w, "Method GET forbidden", MethodNotAllowed)
+		http.Error(w, "Method GET forbidden", http.StatusMethodNotAllowed)
 		return
 	}
 

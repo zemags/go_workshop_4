@@ -23,3 +23,24 @@ curl -i -X GET http://127.0.0.1:8080/memo/create
 #### Название шаблонов навазние.роль.tmpl
 </br>
  - http.FileServer - Обработчик статических файлов (`fileServer := http.FileServer(http.Dir("./ui/static"))`)
+</br>
+
+##### интерфейс http.Handler
+- обработчик, контроллер - чтобы объект был обработчиком http-запросов у него должен быть метод `ServeHTTP`
+```golang
+type Handler interface {
+    ServeHTTP(ResponseWriter, *Request)
+}
+```
+#### пример, метод home удовлетворяющий сигнатуре `ServeHTTP`
+```golang
+func ServeHTTP(w http.ResponseWriter, r *http.Request) {}
+```
+
+- если у функции нет метода ServeHTTP, то она в принципе не обработчик
+- чтобы функция стала обработчиком надо использовать адаптер **http.HandlerFunc()**, он добавить функции метод `ServeHTTP`
+- это соответствование требованиям интерфейса http.Handler
+```golang
+mux := http.NewServeMux()
+mux.Handle("/", http.HandlerFunc(home))
+```

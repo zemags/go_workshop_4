@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -41,6 +42,10 @@ func main() {
 	addr := flag.String("addr", ":8080", "Network address")
 	flag.Parse()
 
+	// add logger
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
 	// create new router mux and register our controlers
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
@@ -54,8 +59,8 @@ func main() {
 	// register handler for request with /static/, and remove /static from path
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Println("start listening server", *addr)
+	infoLog.Printf("start listening server^ %v", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {
-		log.Fatal(err)
+		errorLog.Fatal(err)
 	}
 }

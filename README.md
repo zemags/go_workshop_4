@@ -44,3 +44,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request) {}
 mux := http.NewServeMux()
 mux.Handle("/", http.HandlerFunc(home))
 ```
+
+#### логгирование в файл при запуске с терминала
+```bash
+go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log
+```

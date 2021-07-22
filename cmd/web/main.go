@@ -8,6 +8,12 @@ import (
 	"path/filepath"
 )
 
+// application - for dependency injection
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
 type safeFileSystem struct {
 	fs http.FileSystem
 }
@@ -48,14 +54,20 @@ func main() {
 		log.Fatal(err)
 	}
 	defer f.Close()
+
 	infoLog := log.New(f, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(f, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
 	// create new router mux and register our controlers
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/memo", showMemo)
-	mux.HandleFunc("/memo/create", createMemo)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/memo", app.showMemo)
+	mux.HandleFunc("/memo/create", app.createMemo)
 
 	// init fileserver to work with static files by http requests
 	fileServer := http.FileServer(safeFileSystem{http.Dir("./ui/static/")})
@@ -70,7 +82,7 @@ func main() {
 		Handler:  mux,
 	}
 
-	infoLog.Printf("start listening server^ %v", *addr)
+	infoLog.Printf("start listening server: %v", *addr)
 	if err := srv.ListenAndServe(); err != nil {
 		errorLog.Fatal(err)
 	}

@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// ResponseWriter - for combainig http answer and return to user
 	// Request - pointer for structure thats contain info about current request
 	if r.URL.Path != "/" {
@@ -26,19 +25,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal server error", 500)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal server error", 500)
 	}
 }
 
-func showMemo(w http.ResponseWriter, r *http.Request) {
+func (app *application) showMemo(w http.ResponseWriter, r *http.Request) {
 	// get id from URL (../memo?id=1), and check
 	idString := r.URL.Query().Get("id")
 	id, err := strconv.Atoi(idString)
@@ -49,7 +48,7 @@ func showMemo(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "id is:%d", id)
 }
 
-func createMemo(w http.ResponseWriter, r *http.Request) {
+func (app *application) createMemo(w http.ResponseWriter, r *http.Request) {
 	// POST request need
 	if r.Method != http.MethodPost {
 		// add to header 'Allow: POST' and user will know

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -36,6 +37,10 @@ func (sfs safeFileSystem) Open(path string) (http.File, error) {
 }
 
 func main() {
+
+	addr := flag.String("addr", ":8080", "Network address")
+	flag.Parse()
+
 	// create new router mux and register our controlers
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
@@ -49,8 +54,8 @@ func main() {
 	// register handler for request with /static/, and remove /static from path
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Println("start listening server")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	log.Println("start listening server", *addr)
+	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}
 }

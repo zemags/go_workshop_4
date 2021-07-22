@@ -25,7 +25,7 @@ curl -i -X GET http://127.0.0.1:8080/memo/create
  - http.FileServer - Обработчик статических файлов (`fileServer := http.FileServer(http.Dir("./ui/static"))`)
 </br>
 
-##### интерфейс http.Handler
+#### интерфейс http.Handler
 - обработчик, контроллер - чтобы объект был обработчиком http-запросов у него должен быть метод `ServeHTTP`
 ```golang
 type Handler interface {
@@ -49,3 +49,5 @@ mux.Handle("/", http.HandlerFunc(home))
 ```bash
 go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log
 ```
+
+#### стоит избегать Fatal() Panic() за пределами функции main(), лучше вернуть ошибку и паниковать из main()

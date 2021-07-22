@@ -43,8 +43,13 @@ func main() {
 	flag.Parse()
 
 	// add logger
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	f, err := os.OpenFile("log", os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	infoLog := log.New(f, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(f, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// create new router mux and register our controlers
 	mux := http.NewServeMux()
@@ -54,13 +59,19 @@ func main() {
 
 	// init fileserver to work with static files by http requests
 	fileServer := http.FileServer(safeFileSystem{http.Dir("./ui/static/")})
-	mux.Handle("/static", http.NotFoundHandler())
+	// mux.Handle("/static", http.NotFoundHandler())
 
 	// register handler for request with /static/, and remove /static from path
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+
 	infoLog.Printf("start listening server^ %v", *addr)
-	if err := http.ListenAndServe(*addr, mux); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		errorLog.Fatal(err)
 	}
 }

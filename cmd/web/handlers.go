@@ -12,7 +12,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// Request - pointer for structure thats contain info about current request
 	if r.URL.Path != "/" {
 		// return 404 if doesnt match to / or other contollers
-		http.NotFound(w, r)
+		app.notFound(w)
 		// 'return' to exit from func and do not continue next lines
 		return
 	}
@@ -26,14 +26,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		app.errorLog.Println(err.Error())
-		http.Error(w, "Internal server error", 500)
+		app.serverError(w, err)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
 		app.errorLog.Println(err.Error())
-		http.Error(w, "Internal server error", 500)
+		app.serverError(w, err)
 	}
 }
 
@@ -42,7 +42,7 @@ func (app *application) showMemo(w http.ResponseWriter, r *http.Request) {
 	idString := r.URL.Query().Get("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 	fmt.Fprintf(w, "id is:%d", id)
@@ -54,7 +54,7 @@ func (app *application) createMemo(w http.ResponseWriter, r *http.Request) {
 		// add to header 'Allow: POST' and user will know
 		w.Header().Set("Allow", http.MethodPost)
 
-		http.Error(w, "Method GET forbidden", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 

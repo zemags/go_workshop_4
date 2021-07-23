@@ -51,7 +51,6 @@ go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log
 ```
 
 #### стоит избегать Fatal() Panic() за пределами функции main(), лучше вернуть ошибку и паниковать из main()
-</br>
 
 #### Create db and migration (sql-files extension)
 ```sql
@@ -62,3 +61,5 @@ grant all privileges on database memo.* to user_name;
 ```bash
 migrate create -ext sql -dir ./schema -seq init
 ```
+
+- папка **'pkg'** для вспомогательного кода, может использоваться повторно

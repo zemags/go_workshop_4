@@ -11,6 +11,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	"github.com/zemags/go_workshop_4/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -19,6 +20,7 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	memos    *mysql.MemoModel
 }
 
 type safeFileSystem struct {
@@ -94,6 +96,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		memos:    &mysql.MemoModel{DB: db},
 	}
 
 	srv := &http.Server{

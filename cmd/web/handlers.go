@@ -58,5 +58,11 @@ func (app *application) createMemo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Create Memo"))
+	id, err := app.memos.Insert("Melon", "Five melons", "3")
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/memo?id=%d", id), http.StatusSeeOther)
 }

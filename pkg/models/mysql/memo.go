@@ -47,5 +47,30 @@ func (m *MemoModel) Get(id int) (*models.Memo, error) {
 }
 
 func (m *MemoModel) Latest() ([]*models.Memo, error) {
-	return nil, nil
+	query := `select id, title, content, created, expires from memo
+	where expires > utc_timestamp() order by created desc limit 10`
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close() // important to close!!!
+
+	var memos []*models.Memo
+
+	// iterate by rows
+	for rows.Next() {
+		mm := new(models.Memo)
+		err = rows.Scan(&mm.ID, &mm.Title, &mm.Content, &mm.Created, &mm.Expires)
+		if err != nil {
+			return nil, err
+		}
+		memos = append(memos, mm)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return memos, nil
 }

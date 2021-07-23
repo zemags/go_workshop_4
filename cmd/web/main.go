@@ -1,11 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // application - for dependency injection
@@ -43,7 +50,21 @@ func (sfs safeFileSystem) Open(path string) (http.File, error) {
 	return f, nil
 }
 
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
 func main() {
+	if err := godotenv.Load("./.env"); err != nil {
+		logrus.Fatalf("error loading config %s", err.Error())
+	}
 
 	addr := flag.String("addr", ":8080", "Network address")
 	flag.Parse()
@@ -55,8 +76,20 @@ func main() {
 	}
 	defer f.Close()
 
-	infoLog := log.New(f, "INFO\t", log.Ldate|log.Ltime)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(f, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	dsn := fmt.Sprintf(
+		"%s:%s@/%s?parseTime=true",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_NAME"),
+	)
+	db, err := openDB(dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer db.Close()
 
 	app := &application{
 		errorLog: errorLog,
@@ -73,4 +106,5 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		errorLog.Fatal(err)
 	}
+	infoLog.Printf("close connection to server")
 }

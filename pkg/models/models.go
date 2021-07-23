@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// like exceptions in python
 var ErrNoRecord = errors.New("models: cannot find record")
 
 type Memo struct {

@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/zemags/go_workshop_4/pkg/models"
 )
@@ -27,7 +28,22 @@ func (m *MemoModel) Insert(title, content, expires string) (int, error) {
 }
 
 func (m *MemoModel) Get(id int) (*models.Memo, error) {
-	return nil, nil
+	query := `select id, title, content, created, expires from memo
+	where expires > utc_timestamp() and id = ?`
+
+	row := m.DB.QueryRow(query, id)
+
+	mm := &models.Memo{}
+
+	if err := row.Scan(&mm.ID, &mm.Title, &mm.Content, &mm.Created, &mm.Expires); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+
+	return mm, nil
 }
 
 func (m *MemoModel) Latest() ([]*models.Memo, error) {
